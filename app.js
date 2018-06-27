@@ -1,15 +1,20 @@
 // Imports
 const Mongo = require('mongoose')
 const express = require('express')
-const bodyParser = require('body-parser')
-const User = require('./models/user')
+const Session = require('express-session')
+const controllers = require('./controllers')
 
 // Mounting server with middlewares
 const app = express()
 app.use(express.static('public'))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }))
+app.use(Session({
+  secret: 'lsjddjk2kj4o3904j1nd1092',
+  resave: true,
+  saveUninitialized: false
+}))
 app.set('view engine', 'pug')
+
 
 // Database connection
 Mongo.connect('mongodb://localhost/prueba').catch(
@@ -18,62 +23,7 @@ Mongo.connect('mongodb://localhost/prueba').catch(
   }
 )
 
-// Enable routes
-app.get('/',
-  (req, res) => {
-    res.render('index')
-  }
-)
-app.get('/login',
-  (req, res) => {
-    res.render('login')
-  }
-)
-app.post('/login',
-  (req, res) => {
-    const email = req.body.email
-    const password = req.body.password
-    const query = { email, password }
-    User.findOne( query, 'email',
-      (error, doc) => {
-        if (error) {
-          console.log(error)
-          res.send('Error')
-        } else {
-          if (doc) {
-            console.log(doc)
-            res.send(doc)
-          } else {
-            res.send('account not registered')
-          }
-        }
-      }
-    )
-  }
-)
+// Mounting Controllers
+controllers.forEach( module => app.use(module.path, module.controller) )
 
-app.get('/register',
-  (req, res) => {
-    res.render('register')
-  }
-)
-app.post('/register',
-  (req, res) => {
-    const email = req.body.email
-    const password = req.body.password
-    const password_confirmation = req.body.password_confirmation
-    const userFields = { email, password, password_confirmation }
-    const user = new User(userFields)
-    user.save(
-      (err, doc) => {
-        if (err) {
-          console.log(err);
-          res.send('Error')
-        } else {
-          res.send(doc)
-        }
-      }
-    )
-  }
-)
 app.listen(3000)
