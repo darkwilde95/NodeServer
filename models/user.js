@@ -7,11 +7,9 @@ const userSchema = new Schema({
     type: String,
     minlength: [ 5, 'Username must have 5 characters or more' ],
     maxlength: [ 20, 'Username must have 20 characters or less' ],
-    unique: true
   },
   email: {
     type: String,
-    unique: true,
     required: 'email is required',
     match: [
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
