@@ -1,11 +1,11 @@
 extends ./layout.pug
 block contenido
   form(action='/login' method='post')
-    div(class='form-group')
+    .form-group
       label(for='email') Email
-      input(type='email' name='email' id='email' class='form-control')
-    div(class='form-group')
+      input#email.form-control(type='email' name='email')
+    .form-group
       label(for='passweord') Password
-      input(type='password' id='password' name='password' class='form-control')
-    div(class='form-group')
-      input(type='submit' class='btn btn-info' value='Iniciar Sesion')
+      input#password.form-control(type='password' name='password')
+    .form-group
+      input.btn.btn-info(type='submit' value='Login')

@@ -1,4 +1,5 @@
 const Mongo = require('mongoose')
+const bcrypt = require('bcrypt')
 const Schema = Mongo.Schema
 
 const userSchema = new Schema({
@@ -16,26 +17,12 @@ const userSchema = new Schema({
       'email is not valid'
     ]
   },
-  password: {
+  password_digest: {
     type: String,
-    minlength: [ 8, 'Password must have 8 characters or more' ],
     required: 'Password is required',
-    validate: {
-      validator: password => this.pass_confirm === password,
-      message: 'Passwords mismatch'
-    }
-  },
-  gender: {
-    type: String,
-    enum: { values: [ 'M', 'F', 'O' ], message: 'Invalid Option' }
+    set: password => bcrypt.hashSync(password, 11)
   }
 })
-
-userSchema.virtual('password_confirmation').get(
-  () => this.pass_confirm
-).set(
-  password => { this.pass_confirm = password }
-)
 
 const User = Mongo.model('User', userSchema)
 module.exports = User
