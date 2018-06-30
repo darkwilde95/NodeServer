@@ -1,5 +1,4 @@
 const Mongo = require('mongoose')
-const bcrypt = require('bcrypt')
 const Schema = Mongo.Schema
 
 const userSchema = new Schema({
@@ -19,8 +18,7 @@ const userSchema = new Schema({
   },
   password_digest: {
     type: String,
-    required: 'Password is required',
-    set: password => bcrypt.hashSync(password, 11)
+    required: 'Password is required'
   }
 })
 

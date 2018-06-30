@@ -18,7 +18,7 @@ app.set('view engine', 'pug')
 // Database connection
 Mongo.connect('mongodb://localhost/prueba').catch(
   error => {
-    console.log(error);
+    console.log(error)
   }
 )
 

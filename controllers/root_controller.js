@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const root_controller = require('express').Router()
 
@@ -12,15 +13,23 @@ root_controller.route('/login')
   res.render('login')
 })
 .post((req, res) => {
-  const query = {
-    email: req.body.email,
-    password: req.body.password
-  }
-  User.findOne( query, 'username email').then(
+  User.findOne({ email: req.body.email }, 'password_digest').then(
     user => {
       if (user) {
-        req.session.user_id = user._id
-        res.json(user)
+        bcrypt.compare(req.body.password, user.password_digest).then(
+          valid => {
+            if (valid) {
+              req.session.user_id = user._id
+              res.redirect('/dashboard')
+            } else {
+              res.send('Invalid credentials')
+            }
+          }
+        ).catch(
+          error => {
+            res.send(error)
+          }
+        )
       } else {
         res.send('Account not registered')
       }
