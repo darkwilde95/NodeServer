@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt')
 const Mongo = require('mongoose')
 const Schema = Mongo.Schema
 
@@ -18,9 +19,39 @@ const userSchema = new Schema({
   },
   password_digest: {
     type: String,
-    required: 'Password is required'
+    minlength: [ 8, 'Password must have 8 characters or more' ],
+    required: 'Password is required',
   }
 })
 
-const User = Mongo.model('User', userSchema)
-module.exports = User
+userSchema.pre('save', function(next) {
+  const user = this
+  if (!user.isModified('password_digest')) {
+    next()
+  } else {
+    bcrypt.hash(user.password_digest, 12).then(
+      password => {
+        user.password_digest = password
+        next()
+      }
+    ).catch(
+      error => {
+        next(error)
+      }
+    )
+  }
+})
+
+userSchema.method('compare_password', function(password, next) {
+  bcrypt.compare(password, this.password_digest).then(
+    valid => {
+      next(null, valid)
+    }
+  ).catch(
+    error => {
+      next(error, null)
+    }
+  )
+})
+
+module.exports = Mongo.model('User', userSchema)
