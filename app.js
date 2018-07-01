@@ -7,11 +7,11 @@ const controllers = require('./controllers')
 // Mounting server with middlewares
 const MONGO_URL = 'mongodb://localhost/prueba'
 const app = express()
-app.use(express.static('public'))
+app.use('/assets', express.static('assets'))
 app.use(express.urlencoded({ extended: true }))
 app.use(session({
   secret: 'lsjddjk2kj4o3904j1nd1092',
-  resave: false,
+  resave: true,
   saveUninitialized: true
 }))
 app.set('view engine', 'pug')
@@ -22,14 +22,28 @@ Mongo.connect(MONGO_URL).catch(
     console.log(error)
   }
 )
-
+app.use((req, res, next) => {
+  console.log(`\nGetting a request: ${ new Date().toLocaleTimeString()}`)
+  if (req.session.user_id) {
+    console.log("There's a user logged")
+  } else {
+    console.log("There isn't a user logged")
+  }
+  next()
+})
 app.get('/',
   (req, res) => {
-    res.render('index')
+    if (req.session.user_id) {
+      res.redirect('/dashboard')
+    } else {
+      res.render('index')
+    }
   }
 )
 
 // Mounting Controllers
 controllers.forEach( module => app.use(module.path, module.controller) )
 
-app.listen(3000)
+app.listen(3000, (error) => {
+  console.log('\n    Running on http://localhost:3000')
+})

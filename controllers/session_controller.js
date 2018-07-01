@@ -6,7 +6,11 @@ const session_controller = require('express').Router()
 
 session_controller.route('/login')
 .get((req, res) => {
-  res.render('login')
+  if (req.session.user_id) {
+    res.redirect('/dashboard')
+  } else {
+    res.render('login')
+  }
 })
 .post((req, res) => {
   User.findOne({ email: req.body.email }, 'password_digest').then(
@@ -39,7 +43,11 @@ session_controller.route('/login')
 
 session_controller.route('/register')
 .get((req, res) => {
-  res.render('register')
+  if (req.session.user_id) {
+    res.redirect('/dashboard')
+  } else {
+    res.render('register')
+  }
 })
 .post((req, res) => {
   const password_digest = req.body.password
@@ -64,6 +72,17 @@ session_controller.route('/register')
     )
   } else {
     res.send('Passwords mismatch')
+  }
+})
+
+session_controller.route('/logout')
+.get((req, res) => {
+  if (req.session.user_id) {
+    req.session.destroy((error) => {
+      res.redirect('/')
+    })
+  } else {
+    res.redirect('/login')
   }
 })
 
