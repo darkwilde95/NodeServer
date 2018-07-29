@@ -1,12 +1,17 @@
 // Imports
+const http = require('http')
 const Mongo = require('mongoose')
 const express = require('express')
-const session = require('express-session') // Ver si se puede cambiar por 'passport'
+const session = require('express-session')
 const controllers = require('./controllers')
+const passport = require('./config/passport')
+const userStatus = require('./middlewares/user_status')
 
-// Mounting server with middlewares
+// App server config
 const MONGO_URL = 'mongodb://localhost/prueba'
 const app = express()
+const server = http.Server(app)
+const io = require('socket.io')(server)
 app.use('/assets', express.static('assets'))
 app.use(express.urlencoded({ extended: true }))
 app.use(session({
@@ -15,6 +20,8 @@ app.use(session({
   saveUninitialized: true
 }))
 app.set('view engine', 'pug')
+app.use(passport.initialize())
+app.use(passport.session())
 
 // Database connection
 Mongo.connect(MONGO_URL).catch(
@@ -22,18 +29,12 @@ Mongo.connect(MONGO_URL).catch(
     console.log(error)
   }
 )
-app.use((req, res, next) => {
-  console.log(`\nGetting a request: ${ new Date().toLocaleTimeString()}`)
-  if (req.session.user_id) {
-    console.log("There's a user logged")
-  } else {
-    console.log("There isn't a user logged")
-  }
-  next()
-})
+
+// App main
+app.use(userStatus)
 app.get('/',
   (req, res) => {
-    if (req.session.user_id) {
+    if (req.isAuthenticated()) {
       res.redirect('/dashboard')
     } else {
       res.render('index')
@@ -44,6 +45,6 @@ app.get('/',
 // Mounting Controllers
 controllers.forEach( module => app.use(module.path, module.controller) )
 
-app.listen(3000, (error) => {
+server.listen(3000, (error) => {
   console.log('\n    Running on http://localhost:3000')
 })

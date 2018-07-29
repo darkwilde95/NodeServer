@@ -1,49 +1,38 @@
-const bcrypt = require('bcrypt')
 const User = require('../models/user')
+const passport = require('../config/passport')
 const session_controller = require('express').Router()
-
-//TODO: hacer el logout en este controller
 
 session_controller.route('/login')
 .get((req, res) => {
-  if (req.session.user_id) {
+  if (req.isAuthenticated()) {
     res.redirect('/dashboard')
   } else {
     res.render('login')
   }
 })
-.post((req, res) => {
-  User.findOne({ email: req.body.email }, 'password_digest').then(
-    user => {
-      if (user) {
-        user.compare_password(req.body.password, (error, valid) => {
-          if (error) {
-            console.log(error.message)
-            res.send(error.message)
-          } else {
-            if (valid) {
-              req.session.user_id = user._id
-              res.redirect('/dashboard')
-            } else {
-              res.send('Invalid credentials')
-            }
-          }
-        })
-      } else {
-        res.send('Account not registered')
-      }
+.post((req, res, next) => {
+
+  passport.authenticate('local', (error, user, info) => {
+    if (error) {
+      next(error)
     }
-  ).catch(
-    error => {
-      console.log(error.message)
-      res.send(error.message)
+    if (!user) {
+      res.status(400).send('Email or password not valid')
+    } else {
+      req.logIn(user, (error) => {
+        if (error) {
+          next(error)
+        }
+        console.log('User logged in succesfully');
+        res.redirect('/dashboard')
+      })
     }
-  )
+  })(req, res, next)
 })
 
 session_controller.route('/register')
 .get((req, res) => {
-  if (req.session.user_id) {
+  if (req.isAuthenticated()) {
     res.redirect('/dashboard')
   } else {
     res.render('register')
@@ -61,8 +50,13 @@ session_controller.route('/register')
     const user = new User(userFields)
     user.save().then(
       user => {
-        req.session.user_id = user._id
-        res.redirect('/dashboard')
+        req.logIn(user, (error) => {
+          if (error) {
+            next(error)
+          }
+          console.log('User created succesfully');
+          res.redirect('/dashboard')
+        })
       }
     ).catch(
       error => {
@@ -76,14 +70,14 @@ session_controller.route('/register')
 })
 
 session_controller.route('/logout')
-.get((req, res) => {
-  if (req.session.user_id) {
-    req.session.destroy((error) => {
-      res.redirect('/')
-    })
-  } else {
-    res.redirect('/login')
+.get((req, res, next) => {
+  if (req.isAuthenticated()) {
+    req.logout()
+    console.log('User logged out succesfully');
+    res.redirect('/')
+    return next()
   }
+  res.status(401).send('Unauthorized')
 })
 
 module.exports = session_controller
