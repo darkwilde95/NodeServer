@@ -1,49 +1,25 @@
 const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy
 const User = require('../models/user')
-
-//Serialization
-passport.serializeUser(
-  (user, done) => {
-    // done (error, user)
-    done(null, user._id)
-  }
-)
-
-passport.deserializeUser(
-  (id, done) => {
-    User.findById(id,
-      (error, user) => {
-        done(error, user)
-      }
-    )
-  }
-)
+const secret = require('./initializers').secret
+const JWTStrategy = require('passport-jwt').Strategy
+const ExtractJWT = require('passport-jwt').ExtractJWT
 
 //Use strategy
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password_digest'
-  },
-  (email, password, done) => {
-    User.findOne({ email },
-      function (error, user) {
-        if (!user) {
-          return done(null, false, { message: 'The email is not registered' })
-        } else {
-          user.compare_password(password,
-            (error, valid) => {
-              if (valid) {
-                return done(null, user)
-              } else {
-                return done(null, false, { message: 'Password is not correct' })
-              }
-            }
-          )
-        }
-      }
-    )
-  }
-))
+const options = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: secret
+}
+passport.use(new JWTStrategy(options, (jwtPayload, done) => {
+  User.findById(jwtPayload.sub, (error, user) => {
+    if (error) {
+      return done(error, false, { message: 'DB error' })
+    }
+    if (!user) {
+      done(null, false, { message: 'User doesn\'t exist' })
+    } else {
+      done(null, user)
+    }
+  })
+}))
 
 module.exports = passport

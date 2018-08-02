@@ -24,7 +24,7 @@ const userSchema = new Schema({
   }
 })
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function(next) {  //No podia ser funcion anonima por contexto
   const user = this
   if (!user.isModified('password_digest')) {
     next()
