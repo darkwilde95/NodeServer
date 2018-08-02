@@ -1,16 +1,17 @@
 const passport = require('passport')
 const User = require('../models/user')
-const secret = require('./initializers').secret
+const secret = require('../assets/values').secret
 const JWTStrategy = require('passport-jwt').Strategy
-const ExtractJWT = require('passport-jwt').ExtractJWT
+const ExtractJwt = require('passport-jwt').ExtractJwt
 
 //Use strategy
 const options = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: secret
 }
+
 passport.use(new JWTStrategy(options, (jwtPayload, done) => {
-  User.findById(jwtPayload.sub, (error, user) => {
+  User.findById(jwtPayload.sub, '-password_digest' ,(error, user) => {
     if (error) {
       return done(error, false, { message: 'DB error' })
     }

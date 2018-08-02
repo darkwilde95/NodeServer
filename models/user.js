@@ -20,38 +20,31 @@ const userSchema = new Schema({
   password_digest: {
     type: String,
     minlength: [ 8, 'Password must have 8 characters or more' ],
-    required: 'Password is required',
+    required: 'Password is required'
   }
 })
 
-userSchema.pre('save', function(next) {  //No podia ser funcion anonima por contexto
-  const user = this
-  if (!user.isModified('password_digest')) {
-    next()
-  } else {
-    bcrypt.hash(user.password_digest, 12).then(
-      password => {
-        user.password_digest = password
-        next()
-      }
-    ).catch(
-      error => {
-        next(error)
-      }
-    )
+userSchema.pre('save', function(next) {  //No podia ser funcion anonima de es6 por contexto
+  if (!this.isModified('password_digest')) {
+    return next()
   }
+  bcrypt.hash(this.password_digest, 12, (error, hash) => {
+    if (error) {
+      return next(error)
+    }
+    this.password_digest = hash
+    console.log(this.password_digest)
+    return next()
+  })
 })
 
-userSchema.method('compare_password', function(password, next) {
-  bcrypt.compare(password, this.password_digest).then(
-    valid => {
-      next(null, valid)
+userSchema.method('compare_password', function(password, done) {
+  bcrypt.compare(password, this.password_digest, (error, valid) => {
+    if (error) {
+      return done(error, null)
     }
-  ).catch(
-    error => {
-      next(error, null)
-    }
-  )
+    return done(null, valid)
+  })
 })
 
 module.exports = Mongo.model('User', userSchema)

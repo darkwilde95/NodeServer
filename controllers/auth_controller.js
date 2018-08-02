@@ -13,23 +13,27 @@ auth_controller.route('/login')
     }
     if (!user) {
       res.status(status.not_found.code).send(status.not_found.msg)
-       return next()
+      return next()
     }
-
-    user.compare_password(password, (valid) => {
-      if (valid) {
-        jwtSign(id, (error, token) => {
-          if (error) {
-            return next(error)
-          }
-          if (token) {
-            res.status(status.ok.code).json({ jwt: token })
-            return next()
-          }
-        })
+    user.compare_password(password, (error, valid) => {
+      if (error) {
+        return next(error)
       }
-      res.status(status.not_found.code).send(status.not_found.msg)
-      next()
+      if (!valid) {
+        res.status(status.not_found.code).send(status.not_found.msg)
+        return next()
+      }
+      jwtSign(user._id, (error, token) => {
+        if (error) {
+          return next(error)
+        }
+        if (!token) {
+          res.status(status.internal_error.code).send(status.internal_error.msg)
+          return next(new Error('Token not generated'))
+        }
+        res.status(status.ok.code).json({ jwt: token })
+        next()
+      })
     })
   })
 })

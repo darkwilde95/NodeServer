@@ -2,14 +2,11 @@
 const Mongo = require('mongoose')
 const controllers = require('./controllers')
 const passport = require('./config/passport')
-const app = require('./config/initializers').app
-const server = require('./config/initializers').server
-const userStatus = require('./middlewares/user_status')
-
-// App server config
-const MONGO_URL = 'mongodb://localhost/prueba'
+const app = require('./config/initialize').app
+const server = require('./config/initialize').server
 
 // Database connection
+const MONGO_URL = 'mongodb://localhost/db'
 Mongo.connect(MONGO_URL).catch(
   error => {
     console.log(error)
@@ -17,19 +14,14 @@ Mongo.connect(MONGO_URL).catch(
 )
 
 // App main
-// app.use(userStatus)
-// app.get('/', (req, res, next) => {
-//     if (req.isAuthenticated()) {
-//       res.redirect('/dashboard')
-//     } else {
-//       res.render('index')
-//     }
-//   }
-// )
+app.get('/', (req, res, next) => {
+  res.send('Holi, estoy funcionando!')
+})
 
 // Mounting Controllers
 controllers.forEach( module => app.use(module.path, module.controller) )
 
+// Run app
 server.listen(3000, (error) => {
-  console.log('\n    Running on http://localhost:3000')
+  console.log('\n    Running on http://localhost:3000\n')
 })

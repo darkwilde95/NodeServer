@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken')
-const secret = require('./initializers').secret
+const secret = require('../assets/values').secret
 
 module.exports = (id, done) => {
-  jwt.sign(secret, { expiresIn: '1d', subject: id }, (error, token) => {
+  jwt.sign({ sub: id }, secret, { expiresIn: '1d'}, (error, token) => {
     if (error) {
       return done(error, null)
     }
     return done(null, token)
   })
-})
+}

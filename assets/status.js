@@ -1,5 +1,5 @@
 module.exports = {
-  ok: { code: 200, msg: 'OK' }
+  ok: { code: 200, msg: 'OK' },
   created: { code: 201, msg: 'Created' },
   bad_request: { code: 400, msg: 'BAD REQUEST'},
   unauthorized: { code: 401, msg: 'UNAUTHORIZED' },
