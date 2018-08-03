@@ -1,6 +1,6 @@
 const User = require('../models/user')
 const status = require('../assets/status')
-const jwtSign = require('../config/jwt_sign')
+const sign = require('../config/jwt').sign
 const users_controller = require('express').Router()
 
 users_controller.route('/')
@@ -29,7 +29,7 @@ users_controller.route('/')
     if (error) {
       return next(error)
     }
-    jwtSign(user._id, (error, token) => {
+    sign(user._id, (error, token) => {
       if (error) {
         return next(error)
       }

@@ -33,7 +33,6 @@ userSchema.pre('save', function(next) {  //No podia ser funcion anonima de es6 p
       return next(error)
     }
     this.password_digest = hash
-    console.log(this.password_digest)
     return next()
   })
 })
