@@ -23,6 +23,4 @@ app.get('/', (req, res, next) => {
 controllers.forEach( module => app.use(module.path, module.controller) )
 
 // Run app
-server.listen(port, (error) => {
-  console.log(`\n    Running on http://localhost:${port}\n`)
-})
+server.listen(port)
