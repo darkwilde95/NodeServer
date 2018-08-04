@@ -1,6 +1,7 @@
 // Imports
 const Mongo = require('mongoose')
 const controllers = require('./controllers')
+const port = require('./assets/values').port
 const passport = require('./config/passport')
 const app = require('./config/initialize').app
 const server = require('./config/initialize').server
@@ -22,6 +23,6 @@ app.get('/', (req, res, next) => {
 controllers.forEach( module => app.use(module.path, module.controller) )
 
 // Run app
-server.listen(3000, (error) => {
-  console.log('\n    Running on http://localhost:3000\n')
+server.listen(port, (error) => {
+  console.log(`\n    Running on http://localhost:${port}\n`)
 })

@@ -1,3 +1,5 @@
-const secret = 'unaminiaplicaciondepruebaNODE'
+const secret = 'unaminiaplicaciondepruebaNODE' //Esto no debe de hacerse
+const port = process.env.PORT || 3000
+const apiUrl = 'https://unfail-api.herokuapp.com'
 
-module.exports = { secret } //Esto no debe de hacerse
+module.exports = { secret, port, apiUrl } 
