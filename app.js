@@ -7,7 +7,7 @@ const app = require('./config/initialize').app
 const server = require('./config/initialize').server
 
 // Database connection
-const MONGO_URL = 'mongodb://localhost/db'
+const MONGO_URL = process.env.MONGODB_URI || 'mongodb://localhost/db'
 Mongo.connect(MONGO_URL).catch(
   error => {
     console.log(error)
