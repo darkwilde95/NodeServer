@@ -1,10 +1,8 @@
 // Imports
 const Mongo = require('mongoose')
+const app = require('./config/initialize')
 const controllers = require('./controllers')
 const port = require('./assets/values').port
-const passport = require('./config/passport')
-const app = require('./config/initialize').app
-const server = require('./config/initialize').server
 
 // Database connection
 const MONGO_URL = process.env.MONGODB_URI || 'mongodb://localhost/db'
@@ -20,7 +18,9 @@ app.get('/', (req, res, next) => {
 })
 
 // Mounting Controllers
-controllers.forEach( module => app.use(module.path, module.controller) )
+controllers.forEach( module => app.use( module.path, module.controller) )
 
 // Run app
-server.listen(port)
+app.listen(port, () => {
+  console.log('App running on http://localhost:' + port)
+})
