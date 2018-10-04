@@ -3,11 +3,15 @@ const Mongo = require('mongoose')
 const Schema = Mongo.Schema
 
 const userSchema = new Schema({
-  name: String,
+  name: {
+    type: String,
+    match:[/[A-Za-z]*/]
+  },
   username: {
     type: String,
     minlength: [ 5, 'Username must have 5 characters or more' ],
     maxlength: [ 20, 'Username must have 20 characters or less' ],
+    required: 'Username is required',
   },
   email: {
     type: String,

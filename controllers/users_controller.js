@@ -46,7 +46,7 @@ users_controller.route('/')
 
 users_controller.route('/:user_id')
 .get((req, res, next) => {
-  User.findOne({ _id: req.params.user_id }, '-password_digest', (error, user) => {
+  User.findById({ _id: req.params.user_id }, '-password_digest', (error, user) => {
     if (error) {
       return next(error)
     }
